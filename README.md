@@ -9,7 +9,7 @@ Routes internal homelab services behind a single TLS endpoint.
 # docker-compose.yml
 services:
   proxy:
-    image: ghcr.io/hwong/homelab-nginx-ssl-proxy:latest
+    image: ghcr.io/simplylimitless/homelab-nginx-ssl-proxy:latest
     container_name: nginx-proxy
     restart: unless-stopped
     ports:

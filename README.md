@@ -21,12 +21,14 @@ services:
       - ./sites-enabled:/etc/nginx/sites-enabled:ro
       # SSL certificates — directory must mirror server_name paths
       - ./certs:/etc/letsencrypt/live:ro
+      # Optional: L4/stream configs for non-HTTP protocols (e.g. RTSP)
+      - ./streams-enabled:/etc/nginx/streams-enabled:ro
     environment:
       - TZ=America/Los_Angeles
 ```
 
 ```bash
-mkdir -p sites mysite certs
+mkdir -p sites sites-enabled certs
 ```
 
 ## Configuration
@@ -37,9 +39,8 @@ Each proxied service gets one `.conf` file in `sites/`. Symlink it into
 `sites-enabled/` to activate — nginx only loads files from that directory.
 
 ```bash
-# Create a config and symlink it
-cp sites/_template.mysite.conf sites/mysite.conf
-ln -sf ../../sites/mysite.conf ../sites-enabled/mysite.conf
+# Create sites/mysite.conf using the template below, then symlink it in
+ln -sf ../sites/mysite.conf sites-enabled/mysite.conf
 ```
 
 ### Template
@@ -160,14 +161,33 @@ The image enforces **TLSv1.2 only** (no SSLv3, TLSv1.0, or TLSv1.1) via
 
 ```bash
 # Activate a site
-ln -sf ../../sites/mysite.conf ../sites-enabled/mysite.conf
+ln -sf ../sites/mysite.conf sites-enabled/mysite.conf
 
 # Deactivate (remove the symlink)
-rm ../sites-enabled/mysite.conf
+rm sites-enabled/mysite.conf
 
 # Reload nginx after changes (if running in Docker without restart)
 docker exec nginx-proxy nginx -s reload
 ```
+
+## Stream (L4) Proxying
+
+For non-HTTP, TCP/UDP-level protocols (e.g. RTSP, raw TCP passthrough),
+`nginx.conf` wraps `/etc/nginx/streams-enabled/*.conf` in a top-level
+`stream {}` block. Files placed there follow the same activate/deactivate
+convention as `sites-enabled`, but each `.conf` file is a bare `server {}`
+block (no `http`-style `location` directives):
+
+```nginx
+# streams-enabled/rtsp.conf
+server {
+    listen     8554;
+    proxy_pass rtsp-backend:8554;
+}
+```
+
+This directory is optional — omit the `./streams-enabled` volume mount
+entirely if you have no non-HTTP services to proxy.
 
 ## Directory Summary
 
@@ -177,11 +197,13 @@ docker exec nginx-proxy nginx -s reload
 │   ├── mysite.conf
 │   └── other-service.conf
 ├── sites-enabled/         ← symlinks into sites/ (nginx reads this dir)
-│   └── mysite.conf → ../../sites/mysite.conf
+│   └── mysite.conf → ../sites/mysite.conf
 ├── certs/                 ← SSL certificate files (Let's Encrypt layout)
 │   └── mysite.local/
 │       ├── fullchain.pem
 │       └── privkey.pem
+├── streams-enabled/       ← optional: L4/stream configs (RTSP, raw TCP, etc.)
+│   └── rtsp.conf
 ├── nginx.conf             ← main config (pinned in the image)
 └── README.md
 ```

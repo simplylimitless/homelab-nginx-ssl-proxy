@@ -3,6 +3,8 @@
 Minimal nginx reverse proxy with SSL termination, packaged as a Docker image.
 Routes internal homelab services behind a single TLS endpoint.
 
+**Supported architectures:** `linux/amd64`, `linux/arm64`
+
 ## Quick Start
 
 ```yaml
@@ -214,4 +216,11 @@ Build from source instead of pulling the pre-built image:
 
 ```bash
 docker build -t homelab-nginx-ssl-proxy .
+```
+
+The published image is multi-arch (`linux/amd64`, `linux/arm64`). To build
+multi-arch locally with buildx:
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t homelab-nginx-ssl-proxy .
 ```

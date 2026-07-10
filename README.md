@@ -3,6 +3,8 @@
 Minimal nginx reverse proxy with SSL termination, packaged as a Docker image.
 Routes internal homelab services behind a single TLS endpoint.
 
+**Supported architectures:** `linux/amd64`, `linux/arm64`
+
 ## Quick Start
 
 ```yaml

@@ -1,4 +1,4 @@
-# homelab-nginx-ssl-proxy
+# nginx-ssl-proxy
 
 Minimal nginx reverse proxy with SSL termination, packaged as a Docker image.
 Routes internal homelab services behind a single TLS endpoint.
@@ -11,7 +11,7 @@ Routes internal homelab services behind a single TLS endpoint.
 # docker-compose.yml
 services:
   proxy:
-    image: ghcr.io/simplylimitless/homelab-nginx-ssl-proxy:latest
+    image: ghcr.io/simplylimitless/nginx-ssl-proxy:latest
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
@@ -215,12 +215,12 @@ entirely if you have no non-HTTP services to proxy.
 Build from source instead of pulling the pre-built image:
 
 ```bash
-docker build -t homelab-nginx-ssl-proxy .
+docker build -t nginx-ssl-proxy .
 ```
 
 The published image is multi-arch (`linux/amd64`, `linux/arm64`). To build
 multi-arch locally with buildx:
 
 ```bash
-docker buildx build --platform linux/amd64,linux/arm64 -t homelab-nginx-ssl-proxy .
+docker buildx build --platform linux/amd64,linux/arm64 -t nginx-ssl-proxy .
 ```
